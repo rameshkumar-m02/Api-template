@@ -12,18 +12,40 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
+
+@Service
 public class BatchService {
 	
+	@Value("${gitCodePath}")
+	private String gitCodePath;
+	
+	@Value("${codegenerateBatch}")
+	private String codegenerateBatch;
+	
+	@Value("${gitprocessbatch}")
+	private String gitprocessbatch;
+	
+	@Value("${springDemo}")
+	private String springDemo;
+	
+	@Value("${demoDestBase}")
+	private String demoDestBase;
+	
+	
+	
+	
 	public String executeBatchFile(Map<String,Object>inputParams) {
-	        String batchFilePath = "C:/Users/rameshkumar.m/Desktop/Spring/batchfile.bat";
-	        String batchFileGitPath = "C:/Users/rameshkumar.m/Desktop/Spring/gitoperation.bat";
+	        String batchFilePath = codegenerateBatch;
+	        String batchFileGitPath = gitprocessbatch;
 	        String projectName = (String)inputParams.get("projectName");
 	        System.out.println("projectName"+projectName);
 	        String dependency = (String) inputParams.get("dependency");
-	        String projectDownloadPath = (String) inputParams.get("projectDownloadPath");
+	        String projectDownloadPath = (String) inputParams.get("projectDownloadPath")+"\\";
 	        String demo_required = (String) inputParams.get("demo_required");
-	        String projectPath = "C:\\Users\\rameshkumar.m\\Desktop\\"+projectName;
+	        String projectPath = projectDownloadPath+"\\"+projectName;
 	        //String propertiesFilePath = projectDownloadPath+"/"+projectName+"/src/main/resources/application.properties";
 	        
 	      //String[] dependencyList=new String[] {"web","jpa","thymeleaf"};
@@ -44,8 +66,9 @@ public class BatchService {
 	        try {
 	           ProcessBuilder processBuilder = new ProcessBuilder("cmd","/c","start","cmd","/c",batchFilePath,projectName,dependencyParam);
 	        // Set the working directory if needed
-	           System.out.println("procee.info()==="+processBuilder.command()); 
-	         processBuilder.directory(new File("C:\\Users\\rameshkumar.m\\Desktop"));
+	           System.out.println("procee.info()==="+processBuilder.command());
+	           System.out.println("projectDownloadPath==="+projectDownloadPath);
+	         processBuilder.directory(new File(projectDownloadPath));
 
 	        // Start the process
 	        Process process = processBuilder.start();
@@ -64,8 +87,8 @@ public class BatchService {
 		    	 				         
 				  //  Path target = Paths.get(projectDownloadPath+"\\"+projectName+"\\src\\main\\java\\com\\");
 				  
-				    File srcDir = new File("D:/sts/api-template/src/main/resources/spring-demo");  
-				    File destDir = new File("C:/Users/rameshkumar.m/Desktop/"+projectName+"/src/main/java/com");
+				    File srcDir = new File(springDemo);  
+				    File destDir = new File(demoDestBase+projectName+"/src/main/java/com");
 
 				   
 				    
@@ -81,16 +104,7 @@ public class BatchService {
 				    }	
 				    
 				} 
-			 
-			 ProcessBuilder processBuilder2 = new ProcessBuilder("cmd","/c","start","cmd","/c",batchFileGitPath,"rameshkumar-m021","rameshkumar.m@sonata-software.com","Bangalore1234","https://github.com/rameshkumar-m02/sample.git",projectPath,projectName);
-		        // Set the working directory if needed
-		           System.out.println("procee.info()==="+processBuilder2.command()); 
-		           processBuilder2.directory(new File("C:\\Users\\rameshkumar.m\\Desktop"));
-
-		        // Start the process
-		        Process process2 = processBuilder2.start();
-				 int exitCode2 = process.waitFor();
-				 System.out.println("procee.info() exitCode2==="+exitCode2);
+			
 			 
 			 if (exitCode == 0) {
 				      				       

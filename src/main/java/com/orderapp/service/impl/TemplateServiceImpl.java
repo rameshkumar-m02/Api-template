@@ -47,6 +47,8 @@ public class TemplateServiceImpl implements TemplateService{
 	@Autowired
     private TemplateRepo templateRepo;
 	
+	@Autowired
+	private BatchService batchsvc;
 	@Value("${projectDownloadPath}")
 	private String projectcreatePath;
 
@@ -71,17 +73,23 @@ public class TemplateServiceImpl implements TemplateService{
 	public Template createTemplate(Template template) {
 		//String projectDownloadPath = "C:\\Users\\rameshkumar.m\\Desktop";
 		String projectDownloadPath = projectcreatePath;
-     	/*calling batch file for creating a spring project*/
-		BatchService batchsvc = new BatchService();
+      //  String propertiesFilePath = projectDownloadPath+"\\"+serviceDetails.getProject_name()+"\\src\\main\\resources\\application.properties";
+		/*calling batch file for creating a spring project*/
+		//BatchService batchsvc = new BatchService();
 		ConfigService config = new ConfigService();
 		List<ServiceDetails> serDetails = template.getServiceDetails();
-		 String batchFileGitPath = gitPullbatchFilePath;
+		  //String batchFileGitPath = "C:/Users/rameshkumar.m/Desktop/Spring/gitpull.bat";
+		Process process = null;
+		String batchFileGitPath = gitPullbatchFilePath;
+		String processbatch = gitprocessbatch;
+		String projectName= null;
+		String projectPath = null;
 		 ProcessBuilder processBuilder = new ProcessBuilder("cmd","/c","start","cmd","/c",batchFileGitPath,template.getRepo_user_name(),template.getRepo_user_email(),template.getRepo_user_pwd(),template.getRepo_url());
 		 try {
 			 System.out.println("procee.info()==="+processBuilder.command()); 
 	         //processBuilder.directory(new File("C:\\Users\\rameshkumar.m\\Desktop\\code"));
 	         processBuilder.directory(new File(gitCodePath));
-			Process process = processBuilder.start();
+			 process = processBuilder.start();
 			int exitCode = process.waitFor();
 			 System.out.println("clone process.info()exitCode==="+exitCode);
 		} catch (IOException e) {
@@ -93,6 +101,8 @@ public class TemplateServiceImpl implements TemplateService{
 		 for (ServiceDetails serviceDetails : serDetails) {
 		 String propertiesFilePath = projectDownloadPath+"\\"+serviceDetails.getProject_name()+"\\src\\main\\resources\\application.properties";	
 		Map<String,Object> inputParams = new HashMap<String,Object>();
+		projectName = serviceDetails.getProject_name();
+		projectPath = projectDownloadPath+"\\"+projectName;
 		inputParams.put("projectName", serviceDetails.getProject_name());
 		if(serviceDetails.getDb_type().equalsIgnoreCase("mongodb")) {
 			inputParams.put("dependency", serviceDetails.getDependencyList()+",data-mongodb");
@@ -114,18 +124,72 @@ public class TemplateServiceImpl implements TemplateService{
 		/*updating the properties file*/
 		if(status.equalsIgnoreCase("success")) {
 			try { 
-				System.out.println( "Invoking the wait() method");
-				Thread.sleep(10000);
+				System.out.println( "Invoking the wait() method processbatch"+processbatch);
+				Thread.sleep(6000);
 				config.UpdateProp(inputParams);
 				config.generateDockerFile(inputParams);
+				
+				 
+				 ProcessBuilder processBuilder2 = new ProcessBuilder("cmd","/c","start","cmd","/c",processbatch,template.getRepo_user_name(),template.getRepo_user_email(),template.getRepo_user_pwd(),template.getRepo_url(),projectPath,projectName);
+			        // Set the working directory if needed
+			           System.out.println("procee.info()==="+processBuilder2.command()); 
+			           processBuilder2.directory(new File(projectcreatePath));
+
+			        // Start the process
+			        Process process2 = processBuilder2.start();
+					 int exitCode2 = process2.waitFor();
+					 System.out.println("procee.info() exitCode2==="+exitCode2);
+				 
+				 
             } 
-            catch (InterruptedException | IOException e) { 
+		            catch (InterruptedException | IOException e) { 
                 e.printStackTrace(); 
             } 
 			
-			
+			/*
+			 * if(template.getDemo_required()!=null &&
+			 * template.getDemo_required().toString().equalsIgnoreCase("Yes")) { Path source
+			 * = Paths.get("D:\\sts\\api-template\\src\\main\\resources\\spring-demo\\");
+			 * 
+			 * Path target =
+			 * Paths.get(projectDownloadPath+"\\"+template.getProject_name()+"\\src\\main\\
+			 * java\\com\\");
+			 * 
+			 * File srcDir = new File("D:/sts/api-template/src/main/resources/spring-demo");
+			 * File destDir = new
+			 * File("C:/Users/rameshkumar.m/Desktop/"+template.getProject_name()+
+			 * "/src/main/java/com");
+			 * 
+			 * 
+			 * 
+			 * System.out.println("source="+source); System.out.println("target="+target);
+			 * try { //Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+			 * FileUtils.copyDirectory(srcDir, destDir);
+			 * 
+			 * 
+			 * } catch (IOException e) { e.printStackTrace(); }
+			 * 
+			 * }
+			 */
 		}
 		
+		/*
+		 * FileOutputStream fos; try { fos = new
+		 * FileOutputStream(projectDownloadPath+"\\"+serviceDetails.getProject_name()+".
+		 * zip"); ZipOutputStream zipOut = new ZipOutputStream(fos);
+		 * System.out.println("fos===="+fos); File fileToZip = new
+		 * File(projectDownloadPath+"\\"+serviceDetails.getProject_name()+"\\");
+		 * System.out.println("fileToZip===="+fileToZip); zipFile(fileToZip,
+		 * fileToZip.getName(), zipOut);
+		 * 
+		 * 
+		 * 
+		 * 
+		 * System.out.println("zipOut===="+zipOut); zipOut.close();
+		 * System.out.println("close===="); fos.close(); } catch (IOException e) { //
+		 * TODO Auto-generated catch block e.printStackTrace(); }
+		 */
+		}
 		       
 		return templateRepo.save(template);
 	}
@@ -412,7 +476,7 @@ public class TemplateServiceImpl implements TemplateService{
 		       git.commit().setMessage( "updated for changes on: " + LocalDate.now()).call();
 		       PushCommand push = git.push();
 		       push.setRemote( "https://github.com/rameshkumar-m02/sample.git" ).setRefSpecs( new RefSpec( "refs/heads/master:refs/heads/master" ) );
-		       UsernamePasswordCredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider("rameshkumar-m02", "lkl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");
+		       UsernamePasswordCredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider("rameshkumar-m02", "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");
 		       push.setCredentialsProvider(credentialsProvider);
 		       //git.push().setRemote( "https://github.com/rameshkumar-m02/my-demo2.git" ).setRefSpecs( new RefSpec( "refs/heads/*:refs/remotes/origin/*" ) ).call();
 		      // preparePushCommand(git).setRemote("origin").setRemote("https://github.com/rameshkumar-m02/my-demo1.git").setRefSpecs(new RefSpec("refs/heads/main:refs/heads/main")).call();
