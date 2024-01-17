@@ -67,6 +67,9 @@ public class TemplateServiceImpl implements TemplateService{
 	@Value("${springDemo}")
 	private String springDemo;
 	
+	@Value("${dockerPushScriptfilePath}")
+	private String dockerPushScriptfilePath;
+	
 	
 	
 	@Override
@@ -84,7 +87,7 @@ public class TemplateServiceImpl implements TemplateService{
 		String processbatch = gitprocessbatch;
 		String projectName= null;
 		String projectPath = null;
-		 ProcessBuilder processBuilder = new ProcessBuilder("cmd","/c","start","cmd","/c",batchFileGitPath,template.getRepo_user_name(),template.getRepo_user_email(),template.getRepo_user_pwd(),template.getRepo_url());
+		 ProcessBuilder processBuilder = new ProcessBuilder("cmd","/c","start","cmd","/c",batchFileGitPath,template.getRepo_user_name(),template.getRepo_user_email(),template.getRepo_user_pwd(),template.getRepo_url(),template.getTemplateName());
 		 try {
 			 System.out.println("procee.info()==="+processBuilder.command()); 
 	         //processBuilder.directory(new File("C:\\Users\\rameshkumar.m\\Desktop\\code"));
@@ -116,7 +119,8 @@ public class TemplateServiceImpl implements TemplateService{
 		inputParams.put("propertiesFilePath", propertiesFilePath);
 		inputParams.put("projectDownloadPath", projectDownloadPath);
 		inputParams.put("demo_required", serviceDetails.getDemo_required());
-				
+		inputParams.put("dockerPushScriptfilePath", dockerPushScriptfilePath);
+		
 		String status = batchsvc.executeBatchFile(inputParams);
 		
 		
@@ -130,7 +134,7 @@ public class TemplateServiceImpl implements TemplateService{
 				config.generateDockerFile(inputParams);
 				
 				 
-				 ProcessBuilder processBuilder2 = new ProcessBuilder("cmd","/c","start","cmd","/c",processbatch,template.getRepo_user_name(),template.getRepo_user_email(),template.getRepo_user_pwd(),template.getRepo_url(),projectPath,projectName);
+				 ProcessBuilder processBuilder2 = new ProcessBuilder("cmd","/c","start","cmd","/c",processbatch,template.getRepo_user_name(),template.getRepo_user_email(),template.getRepo_user_pwd(),template.getRepo_url(),projectPath,projectName,template.getTemplateName());
 			        // Set the working directory if needed
 			           System.out.println("procee.info()==="+processBuilder2.command()); 
 			           processBuilder2.directory(new File(projectcreatePath));
@@ -139,6 +143,8 @@ public class TemplateServiceImpl implements TemplateService{
 			        Process process2 = processBuilder2.start();
 					 int exitCode2 = process2.waitFor();
 					 System.out.println("procee.info() exitCode2==="+exitCode2);
+					//pushing the docker image to docker hub
+					 batchsvc.buildAndPushDockerImage(inputParams);
 				 
 				 
             } 
@@ -193,6 +199,7 @@ public class TemplateServiceImpl implements TemplateService{
 		       
 		return templateRepo.save(template);
 	}
+
 
 	@Override
 	public List<Template> getTemplateList() {

@@ -129,4 +129,27 @@ public class BatchService {
 			sb.append(str).append(delimiter);
 		return sb.substring(0, sb.length() - 1);
 	}
+	
+	
+	public String buildAndPushDockerImage(Map<String,Object>inputParams) {
+		 String dockerPushScriptfilePath = (String) inputParams.get("dockerPushScriptfilePath");
+		 String dockerImageName = (String) inputParams.get("projectName");
+		 String projectDownloadPath =(String) inputParams.get("projectDownloadPath");
+		 String projectPath = (String) inputParams.get("projectDownloadPath")+"\\"+(String) inputParams.get("projectName");
+	     System.out.println("docker projectPath--------------"+projectPath); 
+		 // Start the process
+		try {
+			 
+			 ProcessBuilder processBuilder2 = new ProcessBuilder("cmd","/c","start","cmd","/c",dockerPushScriptfilePath,dockerImageName,projectPath);
+		     System.out.println("buildAndPushDockerImage.info()==="+processBuilder2.command()); 
+		     processBuilder2.directory(new File(projectDownloadPath));
+			 Process process2 = processBuilder2.start();
+			 int exitCode2 = process2.waitFor();
+		} catch (IOException | InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		 
+		return "success";
+	}
 }
