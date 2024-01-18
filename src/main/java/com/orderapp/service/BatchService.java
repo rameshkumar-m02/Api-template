@@ -35,6 +35,9 @@ public class BatchService {
 	@Value("${demoDestBase}")
 	private String demoDestBase;
 	
+	@Value("${helloTemplate}")
+	private String helloTemplate;
+	
 	
 	
 	
