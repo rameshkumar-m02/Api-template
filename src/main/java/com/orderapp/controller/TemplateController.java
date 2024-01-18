@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.orderapp.bo.TemplateRequest;
 import com.orderapp.model.Template;
 import com.orderapp.service.TemplateService;
-
+import org.springframework.web.bind.annotation.CrossOrigin;
 import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
@@ -24,12 +24,13 @@ public class TemplateController {
 	 @Autowired
 	 TemplateService templateService;
 	 
+	 @CrossOrigin
 	 @GetMapping("/findAll")
 	  public List<Template> getAllProduct(){
 	        return templateService.getTemplateList();
 	  }
 	
-	 
+	 @CrossOrigin
 	 @PostMapping("/create")
 	  public Template create(@RequestBody Template template){
 	        return templateService.createTemplate(template);
