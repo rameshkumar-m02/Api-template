@@ -10,7 +10,8 @@ import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
+import java.io.FileReader;
+import java.io.FileWriter;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -82,6 +83,20 @@ public class BatchService {
 	                e.printStackTrace(); 
 	            } 
 			 
+			 try {
+				 FileReader fr = new FileReader(helloTemplate);
+		         
+		            FileWriter fw = new FileWriter(projectDownloadPath+"\\"+projectName+"\\src\\main\\java\\com\\mydomain\\Hello.java");
+		            String str = "";
+		            int i;
+		            while ((i = fr.read()) != -1) {
+		                 str += (char)i;
+		            }
+		            String writeStr =str.replace("serviceName", projectName);
+		            fw.write(writeStr);
+		         
+		            fr.close();
+		            fw.close();	 
 			 if(demo_required!=null && demo_required.equalsIgnoreCase("Yes")) {
 		    	   //Path source = Paths.get("D:\\sts\\api-template\\src\\main\\resources\\spring-demo\\");
 		    	 				         
@@ -94,16 +109,18 @@ public class BatchService {
 				    
 		          // System.out.println("source="+source);
 		          // System.out.println("target="+target);
-				    try {
+				    
 				      //Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
 				      FileUtils.copyDirectory(srcDir, destDir);
 				      
 				    
-				    } catch (IOException e) {
-				      e.printStackTrace();
-				    }	
+				    
 				    
 				} 
+			    } catch (IOException e) {
+			      e.printStackTrace();
+			    }	
+			
 			
 			 
 			 if (exitCode == 0) {
@@ -140,7 +157,7 @@ public class BatchService {
 		 // Start the process
 		try {
 			 
-			 ProcessBuilder processBuilder2 = new ProcessBuilder("cmd","/c","start","cmd","/c",dockerPushScriptfilePath,dockerImageName,projectPath);
+			 ProcessBuilder processBuilder2 = new ProcessBuilder("cmd","/c","start","cmd","/c",dockerPushScriptfilePath,dockerImageName.toLowerCase(),projectPath);
 		     System.out.println("buildAndPushDockerImage.info()==="+processBuilder2.command()); 
 		     processBuilder2.directory(new File(projectDownloadPath));
 			 Process process2 = processBuilder2.start();
