@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
+import com.orderapp.model.CloudConfig;
 import com.orderapp.bo.TemplateRequest;
 import com.orderapp.model.Template;
 import com.orderapp.service.TemplateService;
@@ -45,5 +45,11 @@ public class TemplateController {
 	 @GetMapping("/oldCodeClean")
 	  public String deleteOldCodes(){
 	        return templateService.deleteOldCodebase();
+	  }
+	  
+	 @CrossOrigin
+	 @PostMapping("/cloudConfig")
+	  public CloudConfig create(@RequestBody CloudConfig cloudConfig){
+	        return templateService.createCloudConfig(cloudConfig);
 	  }
 }

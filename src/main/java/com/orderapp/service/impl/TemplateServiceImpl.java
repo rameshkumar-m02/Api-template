@@ -38,6 +38,8 @@ import com.orderapp.repository.TemplateRepo;
 import com.orderapp.service.TemplateService;
 import com.orderapp.service.BatchService;
 import com.orderapp.service.ConfigService;
+import com.orderapp.model.CloudConfig;
+import com.orderapp.repository.ConfigRepo;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -46,6 +48,9 @@ public class TemplateServiceImpl implements TemplateService{
 
 	@Autowired
     private TemplateRepo templateRepo;
+	
+	@Autowired
+    private ConfigRepo configRepo;
 	
 	@Autowired
 	private BatchService batchsvc;
@@ -69,6 +74,9 @@ public class TemplateServiceImpl implements TemplateService{
 	
 	@Value("${dockerPushScriptfilePath}")
 	private String dockerPushScriptfilePath;
+	
+	@Value("${gitprocessCloud}")
+	private String gitprocessCloud;
 	
 	
 	
@@ -509,6 +517,53 @@ public class TemplateServiceImpl implements TemplateService{
 		   //UsernamePasswordCredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider("<useName>", "<passWord>");
 		  // push.setCredentialsProvider(credentialsProvider);
 		   return push;
+		}
+		
+		@Override
+		public CloudConfig createCloudConfig(CloudConfig template) {
+			
+			Map<String,Object> inputParams = new HashMap<String,Object>();
+			inputParams.put("regione", template.getRegione());
+			inputParams.put("zone", template.getZone());
+			inputParams.put("accessKey", template.getAccessKey());
+			inputParams.put("secretKey", template.getSecretKey());
+			inputParams.put("serverType", template.getServerType());
+			inputParams.put("cloudUname", template.getCloudUname());
+			inputParams.put("masterCount", template.getMasterCount());
+			inputParams.put("nodeCount", template.getNodeCount());
+			inputParams.put("machineType", template.getMachineType());
+			inputParams.put("nodeType", template.getNodeType());
+			inputParams.put("templateName", template.getTemplateName());
+			inputParams.put("gitCodePath", gitCodePath);
+			
+			String status = batchsvc.cloudConfiguration(inputParams);
+			if(status.equalsIgnoreCase("success")) {
+				try { 
+					
+					Thread.sleep(6000);
+										
+					 
+					 ProcessBuilder processBuilder2 = new ProcessBuilder("cmd","/c","start","cmd","/c",gitprocessCloud,template.getRepo_user_name(),template.getRepo_user_email(),template.getRepo_user_pwd(),template.getRepo_url(),template.getTemplateName());
+				        // Set the working directory if needed
+				           System.out.println("procee.info()==="+processBuilder2.command()); 
+				           processBuilder2.directory(new File(gitCodePath));
+
+				        // Start the process
+				        Process process2 = processBuilder2.start();
+						 int exitCode2 = process2.waitFor();
+						 System.out.println("procee.info() exitCode2==="+exitCode2);
+						//pushing the docker image to docker hub
+						 
+					 
+					 
+	            } 
+			            catch (InterruptedException | IOException e) { 
+	                e.printStackTrace(); 
+	            } 
+			}
+			
+			return configRepo.save(template);
+			
 		}
 
 }
