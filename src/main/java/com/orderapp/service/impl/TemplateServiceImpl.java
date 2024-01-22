@@ -120,6 +120,16 @@ public class TemplateServiceImpl implements TemplateService{
 		inputParams.put("projectDownloadPath", projectDownloadPath);
 		inputParams.put("demo_required", serviceDetails.getDemo_required());
 		inputParams.put("dockerPushScriptfilePath", dockerPushScriptfilePath);
+		inputParams.put("regione", template.getRegione());
+		inputParams.put("zone", template.getZone());
+		inputParams.put("accessKey", template.getAccessKey());
+		inputParams.put("secretKey", template.getSecretKey());
+		inputParams.put("serverType", template.getServerType());
+		inputParams.put("cloudUname", template.getCloudUname());
+		inputParams.put("masterCount", template.getMasterCount());
+		inputParams.put("nodeCount", template.getNodeCount());
+		inputParams.put("machineType", template.getMachineType());
+		inputParams.put("nodeType", template.getNodeType());
 		
 		String status = batchsvc.executeBatchFile(inputParams);
 		

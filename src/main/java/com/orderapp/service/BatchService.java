@@ -38,7 +38,17 @@ public class BatchService {
 	@Value("${helloTemplate}")
 	private String helloTemplate;
 	
+	@Value("${mainTemplate}")
+	private String mainTemplate;
 	
+	@Value("${variableTemplate}")
+	private String variableTemplate;
+	
+	@Value("${terraformTemplate}")
+	private String terraformTemplate;
+	
+	@Value("${prerequisites}")
+	private String prerequisites;
 	
 	
 	public String executeBatchFile(Map<String,Object>inputParams) {
@@ -124,7 +134,7 @@ public class BatchService {
 			      e.printStackTrace();
 			    }	
 			
-			
+			cloudConfiguration(inputParams);
 			 
 			 if (exitCode == 0) {
 				      				       
@@ -171,5 +181,94 @@ public class BatchService {
 		}
 		 
 		return "success";
+	}
+	
+	
+	public String cloudConfiguration(Map<String,Object>inputParams) {
+		
+		try {
+			 FileReader frmain = new FileReader(mainTemplate);
+			 FileReader frvar = new FileReader(variableTemplate);
+			 FileReader frtera = new FileReader(terraformTemplate);
+			 FileReader frprereq = new FileReader(prerequisites);
+			 String projectDownloadPath=(String) inputParams.get("projectDownloadPath")+"\\";
+			 String projectName= (String)inputParams.get("projectName");
+			 String regione= (String)inputParams.get("regione");
+			 String zone= (String)inputParams.get("zone");
+			 String accessKey= (String)inputParams.get("accessKey");
+			 String secretKey= (String)inputParams.get("secretKey");
+			 String serverType= (String)inputParams.get("serverType");
+			 String cloudUname= (String)inputParams.get("cloudUname");
+			 String masterCount= (String)inputParams.get("masterCount");
+			 String nodeCount= (String)inputParams.get("nodeCount");
+			 String machineType= (String)inputParams.get("machineType");
+			 String nodeType= (String)inputParams.get("nodeType");
+			 
+			 File f1 = new File(projectDownloadPath+"\\"+projectName+"\\cloud-config"); 
+			 f1.mkdir();
+	            FileWriter fwmain = new FileWriter(projectDownloadPath+"\\"+projectName+"\\cloud-config\\main.tf");
+	            FileWriter fwvar = new FileWriter(projectDownloadPath+"\\"+projectName+"\\cloud-config\\variable.tf");
+	            FileWriter fwtera = new FileWriter(projectDownloadPath+"\\"+projectName+"\\cloud-config\\terraform.tfvars");
+	            FileWriter fwprereq = new FileWriter(projectDownloadPath+"\\"+projectName+"\\cloud-config\\prerequisites.sh");
+	            
+	            String strmain = "";
+	            int maini;
+	            while ((maini = frmain.read()) != -1) {
+	            	strmain += (char)maini;
+	            }
+	           // String writeStr =str.replace("serviceName", projectName);
+	            fwmain.write(strmain);
+	         
+	            frmain.close();
+	            fwmain.close();	 
+	            
+	            String strvar = "";
+	            int vari;
+	            while ((vari = frvar.read()) != -1) {
+	            	strvar += (char)vari;
+	            }
+	           // String writeStr =str.replace("serviceName", projectName);
+	            fwvar.write(strvar);
+	         
+	            frvar.close();
+	            fwvar.close();	 
+	            
+	            
+	            String strtera = "";
+	            int terai;
+	            while ((terai = frtera.read()) != -1) {
+	            	strtera += (char)terai;
+	            }
+	            String writeStr =strtera.replace("region_value", regione);
+	            writeStr =writeStr.replace("access_key_value", accessKey);
+	            writeStr =writeStr.replace("secret_key_value", secretKey);
+	            writeStr =writeStr.replace("jenkins_server_type_value", serverType);
+	            fwtera.write(writeStr);
+	         
+	            frtera.close();
+	            fwtera.close();	 
+	            
+	            String strprereq = "";
+	            int prei;
+	            while ((prei = frprereq.read()) != -1) {
+	            	strprereq += (char)prei;
+	            }
+	            String writePre =strprereq.replace("region_value", regione);
+	            writePre =writePre.replace("zone_value", zone);
+	            writePre =writePre.replace("master_count_value", masterCount);
+	            writePre =writePre.replace("machine_type", machineType);
+	            writePre =writePre.replace("node_count_value", nodeCount);
+	            writePre =writePre.replace("node_type", nodeType);
+	            
+	            fwprereq.write(writePre);
+	         
+	            frprereq.close();
+	            fwprereq.close();	 
+		
+		    } catch (IOException e) {
+		      e.printStackTrace();
+		    }	
+		return "success";
+		
 	}
 }

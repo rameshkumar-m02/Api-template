@@ -1,0 +1,7 @@
+aws_region = "region_value"
+
+aws_access_key = "access_key_value"
+
+aws_secret_key = "secret_key_value"
+
+aws_jenkins_server_type = "jenkins_server_type_value" 
