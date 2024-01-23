@@ -565,5 +565,12 @@ public class TemplateServiceImpl implements TemplateService{
 			return configRepo.save(template);
 			
 		}
+		
+		@Override
+		public List<Template> findByCreatedBy(String createdBy) {
+			
+			return templateRepo.findByCreatedBy(createdBy);
+		}
+
 
 }

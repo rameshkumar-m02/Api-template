@@ -52,4 +52,10 @@ public class TemplateController {
 	  public CloudConfig create(@RequestBody CloudConfig cloudConfig){
 	        return templateService.createCloudConfig(cloudConfig);
 	  }
+	  
+	  @CrossOrigin
+	  @GetMapping("/getTemplateByUser")
+	  public List<Template> getAllProduct(@RequestBody Template template){
+	        return templateService.findByCreatedBy(template.getCreatedBy());
+	  }
 }

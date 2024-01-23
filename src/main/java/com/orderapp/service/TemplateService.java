@@ -19,4 +19,6 @@ public interface TemplateService {
 	public String deleteOldCodebase();
 	public ResponseEntity<Resource> generateDynamicTemplate(TemplateRequest template,HttpServletRequest request);
 	public CloudConfig createCloudConfig(CloudConfig cloudConfig);
+	public List<Template> findByCreatedBy(String createdBy);
+	
 }
