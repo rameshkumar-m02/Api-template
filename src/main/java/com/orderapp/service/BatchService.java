@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.io.File;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +17,9 @@ import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import com.orderapp.model.CloudConfig;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.Yaml;
+import java.io.*;
 
 
 @Service
@@ -50,6 +54,15 @@ public class BatchService {
 	
 	@Value("${prerequisites}")
 	private String prerequisites;
+	
+	@Value("${yamlFilesPath}")
+	private String yamlFilesPath;
+	
+	@Value("${scriptsPath}")
+	private String scriptsPath;
+	
+	@Value("${projectDownloadPath}")
+	private String projectDownloadPath;
 	
 	
 	public String executeBatchFile(Map<String,Object>inputParams) {
@@ -99,8 +112,9 @@ public class BatchService {
 			 
 			 try {
 				 FileReader fr = new FileReader(helloTemplate);
-		         
-		            FileWriter fw = new FileWriter(projectDownloadPath+"\\"+projectName+"\\src\\main\\java\\com\\mydomain\\Hello.java");
+				 File helloJava = new File(projectDownloadPath+"\\"+projectName+"\\src\\main\\java\\com\\mydomain\\Hello.java");
+				 helloJava.createNewFile();  
+				 FileWriter fw = new FileWriter(projectDownloadPath+"\\"+projectName+"\\src\\main\\java\\com\\mydomain\\Hello.java");
 		            String str = "";
 		            int i;
 		            while ((i = fr.read()) != -1) {
@@ -111,6 +125,33 @@ public class BatchService {
 		         
 		            fr.close();
 		            fw.close();	 
+		            
+		            //copy the master data file to project codebase
+		            
+		             Path destinationPath =Path.of(projectDownloadPath+"\\"+(String) inputParams.get("projectName")+"\\src\\main\\resources\\data.sql");
+	            	 Path sourcePath = Path.of(scriptsPath+"data.sql");
+	            	 copyFiles(sourcePath,destinationPath);
+		            
+	            	//copy docker mysql to project codebase
+	            	 Path dockerSource = Path.of(scriptsPath+"Dockerfile.mysqldb");
+	            	 Path dockerDest = Path.of(projectDownloadPath+"\\"+(String) inputParams.get("projectName")+"\\Dockerfile.mysqldb");
+	            	 System.out.println("dockerSource-------------"+dockerSource);
+	            	 System.out.println("dockerDest-------------"+dockerDest);
+	            	 copyFiles(dockerSource,dockerDest);
+	            	 
+			   // copy yaml files and update the yaml files
+	            	 copyYamlFolder(inputParams);
+	            	 File directory = new File(projectDownloadPath+"\\"+(String) inputParams.get("projectName")+"\\src\\main\\resources\\");
+	            	 File[] files = directory.listFiles();
+	            	 for (File file : files) {
+	            		if(file.getName().toLowerCase().endsWith(".yaml")) {
+	            			inputParams.put("filePath", file.getAbsolutePath());
+	            			updateYamlConfigurations(inputParams);
+	            		}
+	            	 }
+	            	
+		            
+		            
 			 if(demo_required!=null && demo_required.equalsIgnoreCase("Yes")) {
 		    	   //Path source = Paths.get("D:\\sts\\api-template\\src\\main\\resources\\spring-demo\\");
 		    	 				         
@@ -272,4 +313,85 @@ public class BatchService {
 		return "success";
 		
 	}
+	
+	public String updateYamlConfigurations(Map<String,Object>inputParams) {
+		String filePath = (String) inputParams.get("filePath");
+		String keyToUpdate = "projectName";
+		 String newValue = (String) inputParams.get("projectName");
+		 
+		 try {
+			Map<String, Object> yamlData = loadYamlFile(filePath);
+			
+			Map<String, String> variableMap = new HashMap<>();
+	        variableMap.put(keyToUpdate, newValue);
+	        recursiveVariableReplacement(yamlData, variableMap);
+			
+			
+			 saveYamlFile(filePath, yamlData);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return "success";
+	}
+	
+	 private static Map<String, Object> loadYamlFile(String filePath) throws IOException {
+	        try (InputStream input = new FileInputStream(filePath)) {
+	            Yaml yaml = new Yaml();
+	            return yaml.load(input);
+	        }
+	    }
+	 
+	 
+	 public void copyYamlFolder(Map<String, Object> inputParams) {
+		 try {
+			 File source = new File(yamlFilesPath);
+			 File dest = new File(projectDownloadPath+"\\"+(String) inputParams.get("projectName")+"\\src\\main\\resources\\");
+			 
+			 FileUtils.copyDirectory(source, dest);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	 }
+	 
+	 public void saveYamlFile(String filePath, Map<String, Object> data) throws IOException {
+	        DumperOptions options = new DumperOptions();
+	        options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+
+	        try (Writer output = new FileWriter(filePath)) {
+	            Yaml yaml = new Yaml(options);
+	            yaml.dump(data, output);
+	        }
+	    }
+	 
+	 private static void recursiveVariableReplacement(Object yamlObject, Map<String, String> variableMap) {
+	        if (yamlObject instanceof Map) {
+	            Map<String, Object> yamlMap = (Map<String, Object>) yamlObject;
+	            for (Map.Entry<String, Object> entry : yamlMap.entrySet()) {
+	                Object value = entry.getValue();
+	                if (value instanceof String) {
+	                    String originalValue = (String) value;
+	                    for (Map.Entry<String, String> variableEntry : variableMap.entrySet()) {
+	                        originalValue = originalValue.replace("${" + variableEntry.getKey() + "}", variableEntry.getValue());
+	                    }
+	                    yamlMap.put(entry.getKey(), originalValue);
+	                } else {
+	                    recursiveVariableReplacement(value, variableMap);
+	                }
+	            }
+	        } else if (yamlObject instanceof Iterable) {
+	            for (Object item : (Iterable<?>) yamlObject) {
+	                recursiveVariableReplacement(item, variableMap);
+	            }
+	        }
+	    }
+
+	 public void copyFiles(Path src,Path dest) {
+		 
+    	 try {
+			Files.copy(src, dest, StandardCopyOption.REPLACE_EXISTING);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	 }
 }

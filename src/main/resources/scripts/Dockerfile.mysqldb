@@ -1,0 +1,17 @@
+# Use an official MySQL image as a parent image
+FROM mysql:latest
+
+# Set the environment variables for MySQL
+ENV MYSQL_DATABASE=template \
+    MYSQL_ROOT_PASSWORD=root \
+    MYSQL_PASSWORD=root123
+
+# Expose port 3306 to allow external connections
+EXPOSE 3306
+
+
+# You can also mount a volume for persistent data
+# VOLUME /var/lib/mysql
+
+# CMD instruction is not needed in this case, as it's
+# defined in the parent MySQL image.
