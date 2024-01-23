@@ -235,6 +235,7 @@ public class BatchService {
 			 FileReader frprereq = new FileReader(prerequisites);
 			 String projectDownloadPath=(String) inputParams.get("projectDownloadPath")+"\\";
 			 String projectName= (String)inputParams.get("projectName");
+			 String templateName = (String)inputParams.get("templateName");
 			 String regione= (String)inputParams.get("regione");
 			 String zone= (String)inputParams.get("zone");
 			 String accessKey= (String)inputParams.get("accessKey");
@@ -245,13 +246,15 @@ public class BatchService {
 			 String nodeCount= (String)inputParams.get("nodeCount");
 			 String machineType= (String)inputParams.get("machineType");
 			 String nodeType= (String)inputParams.get("nodeType");
+			 String clusterName = (String)inputParams.get("clusterName");
+			 String bucketName = (String)inputParams.get("bucketName");
 			 
-			 File f1 = new File(projectDownloadPath+"\\"+projectName+"\\cloud-config"); 
+			 File f1 = new File(gitCodePath+"\\"+templateName+"\\cloud-config"); 
 			 f1.mkdir();
-	            FileWriter fwmain = new FileWriter(projectDownloadPath+"\\"+projectName+"\\cloud-config\\main.tf");
-	            FileWriter fwvar = new FileWriter(projectDownloadPath+"\\"+projectName+"\\cloud-config\\variable.tf");
-	            FileWriter fwtera = new FileWriter(projectDownloadPath+"\\"+projectName+"\\cloud-config\\terraform.tfvars");
-	            FileWriter fwprereq = new FileWriter(projectDownloadPath+"\\"+projectName+"\\cloud-config\\prerequisites.sh");
+	            FileWriter fwmain = new FileWriter(gitCodePath+"\\"+templateName+"\\cloud-config\\main.tf");
+	            FileWriter fwvar = new FileWriter(gitCodePath+"\\"+templateName+"\\cloud-config\\variable.tf");
+	            FileWriter fwtera = new FileWriter(gitCodePath+"\\"+templateName+"\\cloud-config\\terraform.tfvars");
+	            FileWriter fwprereq = new FileWriter(gitCodePath+"\\"+templateName+"\\cloud-config\\prerequisites.sh");
 	            
 	            String strmain = "";
 	            int maini;
@@ -301,6 +304,10 @@ public class BatchService {
 	            writePre =writePre.replace("machine_type", machineType);
 	            writePre =writePre.replace("node_count_value", nodeCount);
 	            writePre =writePre.replace("node_type", nodeType);
+	            writePre =writePre.replace("cluster_name_value", clusterName);
+	            writePre =writePre.replace("bucket_name_value", bucketName);
+	            
+	            
 	            
 	            fwprereq.write(writePre);
 	         
@@ -312,8 +319,7 @@ public class BatchService {
 		    }	
 		return "success";
 		
-	}
-	
+	}	
 	public String updateYamlConfigurations(Map<String,Object>inputParams) {
 		String filePath = (String) inputParams.get("filePath");
 		String keyToUpdate = "projectName";

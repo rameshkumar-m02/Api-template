@@ -523,7 +523,7 @@ public class TemplateServiceImpl implements TemplateService{
 		public CloudConfig createCloudConfig(CloudConfig template) {
 			
 			Map<String,Object> inputParams = new HashMap<String,Object>();
-			inputParams.put("regione", template.getRegione());
+		    inputParams.put("regione", template.getRegione());
 			inputParams.put("zone", template.getZone());
 			inputParams.put("accessKey", template.getAccessKey());
 			inputParams.put("secretKey", template.getSecretKey());
@@ -535,6 +535,8 @@ public class TemplateServiceImpl implements TemplateService{
 			inputParams.put("nodeType", template.getNodeType());
 			inputParams.put("templateName", template.getTemplateName());
 			inputParams.put("gitCodePath", gitCodePath);
+			inputParams.put("clusterName", template.getClusterName());
+			inputParams.put("bucketName", template.getBucketName());
 			
 			String status = batchsvc.cloudConfiguration(inputParams);
 			if(status.equalsIgnoreCase("success")) {
