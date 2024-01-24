@@ -40,7 +40,8 @@ public class CloudConfig {
 	private String nodeCount;
 	private String machineType;
 	private String nodeType;
-	
+	private String bucketName;
+	private String clusterName;
 	
 	
 	public String getTemplateName() {
@@ -166,7 +167,12 @@ public class CloudConfig {
 	}
 	
 	
-
+    public String getClusterName() {
+		return clusterName;
+	}
+	public void setClusterName(String clusterName) {
+		this.clusterName = clusterName;
+	}
 	
 	
 
