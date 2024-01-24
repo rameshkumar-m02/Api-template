@@ -1,0 +1,6 @@
+spring.datasource.username=user_name_value
+spring.datasource.url=url_value
+spring.datasource.password=password_value
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect

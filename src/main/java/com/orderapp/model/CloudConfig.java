@@ -174,6 +174,11 @@ public class CloudConfig {
 		this.clusterName = clusterName;
 	}
 	
-	
+	public String getBucketName() {
+		return bucketName;
+	}
+	public void setBucketName(String bucketName) {
+		this.bucketName = bucketName;
+	}
 
 }

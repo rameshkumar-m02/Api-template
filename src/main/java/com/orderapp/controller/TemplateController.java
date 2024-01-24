@@ -58,4 +58,16 @@ public class TemplateController {
 	  public List<Template> getAllProduct(@RequestBody Template template){
 	        return templateService.findByCreatedBy(template.getCreatedBy());
 	  }
+	  
+	  @CrossOrigin
+	 @PostMapping("/getCloudConfigList")
+	  public List<CloudConfig> getCloudConfigList(@RequestBody CloudConfig cloudConfig){
+	        return templateService.getCloudConfigList();
+	  }
+	 
+	 @CrossOrigin
+	 @PostMapping("/getTemplateCloudConfig")
+	  public List<CloudConfig> getTemplateCloudConfig(@RequestBody CloudConfig cloudConfig){
+	        return templateService.getTemplateCloudConfig(cloudConfig.getTemplateName());
+	  }
 }

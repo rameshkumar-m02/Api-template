@@ -20,5 +20,7 @@ public interface TemplateService {
 	public ResponseEntity<Resource> generateDynamicTemplate(TemplateRequest template,HttpServletRequest request);
 	public CloudConfig createCloudConfig(CloudConfig cloudConfig);
 	public List<Template> findByCreatedBy(String createdBy);
+	public List<CloudConfig> getCloudConfigList();
+	public List<CloudConfig> getTemplateCloudConfig(String templateName); 
 	
 }

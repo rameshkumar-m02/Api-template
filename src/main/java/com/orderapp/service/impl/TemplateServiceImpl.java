@@ -78,6 +78,8 @@ public class TemplateServiceImpl implements TemplateService{
 	@Value("${gitprocessCloud}")
 	private String gitprocessCloud;
 	
+	@Value("${propTemplate}")
+	private String propTemplate;
 	
 	
 	@Override
@@ -138,6 +140,7 @@ public class TemplateServiceImpl implements TemplateService{
 		inputParams.put("nodeCount", template.getNodeCount());
 		inputParams.put("machineType", template.getMachineType());
 		inputParams.put("nodeType", template.getNodeType());
+		inputParams.put("propTemplate", propTemplate);
 		
 		String status = batchsvc.executeBatchFile(inputParams);
 		
@@ -573,6 +576,19 @@ public class TemplateServiceImpl implements TemplateService{
 			
 			return templateRepo.findByCreatedBy(createdBy);
 		}
+		
+		@Override
+		public List<CloudConfig> getCloudConfigList() {
+			
+			return configRepo.findAll();
+		}
+		
+		@Override
+		public List<CloudConfig> getTemplateCloudConfig(String templateName) {
+			
+			return configRepo.findByTemplateName(templateName);
+		}
+
 
 
 }
