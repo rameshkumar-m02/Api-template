@@ -329,7 +329,7 @@ public class BatchService {
 			Map<String, Object> yamlData = loadYamlFile(filePath);
 			
 			Map<String, String> variableMap = new HashMap<>();
-	        variableMap.put(keyToUpdate, newValue);
+	        variableMap.put(keyToUpdate, newValue.toLowerCase());
 	        recursiveVariableReplacement(yamlData, variableMap);
 			
 			
@@ -377,7 +377,7 @@ public class BatchService {
 	                if (value instanceof String) {
 	                    String originalValue = (String) value;
 	                    for (Map.Entry<String, String> variableEntry : variableMap.entrySet()) {
-	                        originalValue = originalValue.replace("${" + variableEntry.getKey() + "}", variableEntry.getValue());
+	                        originalValue = originalValue.replace("${" + variableEntry.getKey() + "}", variableEntry.getValue().toLowerCase());
 	                    }
 	                    yamlMap.put(entry.getKey(), originalValue);
 	                } else {
